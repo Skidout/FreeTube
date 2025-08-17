@@ -107,6 +107,11 @@
   text-align: center;
 }
 
+.playlistContainer {
+  transform: translate(10%, 0%);
+  margin-block-end: -2.15rem;
+}
+
 .channelThumbnail {
   border-radius: 50%;
   vertical-align: middle;

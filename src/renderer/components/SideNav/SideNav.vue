@@ -126,6 +126,68 @@
           {{ $t("Playlists") }}
         </p>
       </router-link>
+      <router-link
+        v-if="!hideQuickBookmarkPlaylist && !hidePlaylists"
+        class="navOption mobileShow"
+        role="button"
+        :to="quickBookmarkPlaylistLinkTo"
+        :title="$t(quickBookmarkPlaylist.playlistName)"
+      >
+        <div
+          v-if="!hideText"
+          class="playlistContainer"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'bars']"
+            class="navIcon"
+            :class="applyNavIconExpand"
+            fixed-width
+          />
+        </div>
+        <div
+          v-if="hideText"
+          class="playlistContainer"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'bars']"
+            class="navIcon"
+            :class="applyNavIconExpand"
+            fixed-width
+          />
+        </div>
+        <p
+          v-if="!hideText"
+          class="navLabel playlistContainer"
+        >
+          {{ $t(quickBookmarkPlaylist.playlistName) }}
+        </p>
+      </router-link>
+      <router-link
+        v-for="(playlist, index) in allPlaylists"
+        v-if="!hidePlaylists && !hideText"
+        :key="index"
+        :to="playlist.path"
+        class="navOption mobileHidden"
+        :title="playlist.playlistName"
+        role="button"
+      >
+        <div
+          class="playlistContainer"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'bars']"
+            class="navIcon"
+            :class="applyNavIconExpand"
+            fixed-width
+          />
+        </div>
+        <p
+          v-if="!hideText"
+          class="navLabel playlistContainer"
+        >
+          {{ playlist.playlistName }}
+        </p>
+      </router-link>
       <SideNavMoreOptions />
       <router-link
         class="navOption mobileShow"
@@ -314,6 +376,98 @@ const hidePopularVideos = computed(() => {
 /** @type {import('vue').ComputedRef<boolean>} */
 const hidePlaylists = computed(() => {
   return store.getters.getHidePlaylists
+})
+
+const quickBookmarkPlaylist = computed(() => {
+  return store.getters.getPlaylist(store.getters.getQuickBookmarkTargetPlaylistId)
+})
+
+const hideQuickBookmarkPlaylist = computed(() => {
+  return quickBookmarkPlaylist == null
+})
+
+const quickBookmarkPlaylistLinkTo = computed(() => {
+  // For `router-link` attribute `to`
+  return {
+    path: `/playlist/${store.getters.getQuickBookmarkTargetPlaylistId}`,
+    query: {
+      playlistType: 'user',
+    },
+  }
+})
+
+const allPlaylists = computed(() => {
+  const playlists = store.getters.getAllPlaylists
+  playlists.forEach((playlist) => {
+    playlist.path = {
+      path: `/playlist/${playlist._id}`,
+      query: {
+        playlistType: 'user',
+      },
+    }
+  })
+
+  /*const playlistsArray = [].concat(playlists).sort((a, b) => {
+    switch (this.sortBy) {
+      case SORT_BY_VALUES.NameAscending:
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      case SORT_BY_VALUES.NameDescending:
+        return b.playlistName.localeCompare(a.playlistName, this.locale)
+      case SORT_BY_VALUES.LatestCreatedFirst: {
+        if (a.createdAt > b.createdAt) { return -1 }
+        if (a.createdAt < b.createdAt) { return 1 }
+
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      }
+      case SORT_BY_VALUES.EarliestCreatedFirst: {
+        if (a.createdAt < b.createdAt) { return -1 }
+        if (a.createdAt > b.createdAt) { return 1 }
+
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      }
+      case SORT_BY_VALUES.LatestUpdatedFirst: {
+        if (a.lastUpdatedAt > b.lastUpdatedAt) { return -1 }
+        if (a.lastUpdatedAt < b.lastUpdatedAt) { return 1 }
+
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      }
+      case SORT_BY_VALUES.EarliestUpdatedFirst: {
+        if (a.lastUpdatedAt < b.lastUpdatedAt) { return -1 }
+        if (a.lastUpdatedAt > b.lastUpdatedAt) { return 1 }
+
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      }
+      case SORT_BY_VALUES.LatestPlayedFirst: {
+        if (a.lastPlayedAt == null && b.lastPlayedAt == null) {
+          return a.playlistName.localeCompare(b.playlistName, this.locale)
+        }
+        // Never played playlist = move to last
+        if (a.lastPlayedAt == null) { return 1 }
+        if (b.lastPlayedAt == null) { return -1 }
+        if (a.lastPlayedAt > b.lastPlayedAt) { return -1 }
+        if (a.lastPlayedAt < b.lastPlayedAt) { return 1 }
+
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      }
+      case SORT_BY_VALUES.EarliestPlayedFirst: {
+        // Never played playlist = first
+        if (a.lastPlayedAt == null && b.lastPlayedAt == null) {
+          return a.playlistName.localeCompare(b.playlistName, this.locale)
+        }
+        // Never played playlist = move to first
+        if (a.lastPlayedAt == null) { return -1 }
+        if (b.lastPlayedAt == null) { return 1 }
+        if (a.lastPlayedAt < b.lastPlayedAt) { return -1 }
+        if (a.lastPlayedAt > b.lastPlayedAt) { return 1 }
+
+        return a.playlistName.localeCompare(b.playlistName, this.locale)
+      }
+      default:
+        console.error(`Unknown sortBy: ${this.sortBy}`)
+        return 0
+    }
+  })*/
+  return playlistsArray.filter(playlist => playlist._id !== store.getters.getQuickBookmarkTargetPlaylistId)
 })
 
 /** @type {import('vue').ComputedRef<boolean>} */
